@@ -1,0 +1,34 @@
+{
+    "name": "XRIInputActions",
+    "maps": [
+        {
+            "name": "XRI RightHand",
+            "id": "d4d50a7b-41ca-4d01-8b84-a55405f004ca",
+            "actions": [
+                {
+                    "name": "TriggerPress",
+                    "type": "Button",
+                    "id": "57e4cecb-b57e-48cd-ae55-534dd29f5cfb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "607ca7e8-d9a1-44f7-8228-f7aecdceb2c8",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TriggerPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

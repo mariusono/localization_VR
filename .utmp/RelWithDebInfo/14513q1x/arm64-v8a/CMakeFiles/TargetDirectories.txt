@@ -1,0 +1,5 @@
+C:/Users/acer/Test_christian/.utmp/RelWithDebInfo/14513q1x/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/acer/Test_christian/.utmp/RelWithDebInfo/14513q1x/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Users/acer/Test_christian/.utmp/RelWithDebInfo/14513q1x/arm64-v8a/GameActivity/CMakeFiles/game.dir
+C:/Users/acer/Test_christian/.utmp/RelWithDebInfo/14513q1x/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+C:/Users/acer/Test_christian/.utmp/RelWithDebInfo/14513q1x/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

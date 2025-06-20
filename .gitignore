@@ -1,0 +1,36 @@
+# Ignore generated files
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+MemoryCaptures/
+UserSettings/
+
+# Ignore OS or IDE junk
+.DS_Store
+Thumbs.db
+
+# Ignore Visual Studio / Rider / JetBrains files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.vscode/
+.idea/
+
+# Ignore Android/iOS builds
+*.apk
+*.aab
+*.xcworkspace
+*.xcuserstate
