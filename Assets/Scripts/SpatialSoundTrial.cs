@@ -1,5 +1,6 @@
-using System.IO;
 using System;
+using System.IO;
+using System.Collections.Generic; 
 using UnityEngine;
 using UnityEngine.InputSystem;
 using FMODUnity;
@@ -11,8 +12,18 @@ public class SpatialSoundTrial : MonoBehaviour
     public bool playTic = false;
 
     private float soundDistance = 2.0f;
+    private readonly float[] azimuths = { 0f, 45f, 90f, 270f, 315f };
+    //private readonly float[] azimuths = { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
 
 
+
+    private Dictionary<Key, float> unityKeyToAzimuth = new();
+    private Dictionary<Key, float> fmodKeyToAzimuth = new();
+    private Dictionary<Key, float> bothKeyToAzimuth = new();
+
+    private readonly Key[] unityKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T };
+    private readonly Key[] fmodKeys = { Key.A, Key.S, Key.D, Key.F, Key.G };
+    private readonly Key[] bothKeys = { Key.Z, Key.X, Key.C, Key.V, Key.B };
 
 
     public Transform playerHead;
@@ -90,52 +101,45 @@ public class SpatialSoundTrial : MonoBehaviour
             markersPlaced = true;
         }
 
-        // Directional keys for Unity, FMOD, Both
-        float[] azimuths = { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
 
-        // Unity only keys: Q W E R T Y U I
-        Key[] unityKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.Y, Key.U, Key.I };
-
-        // FMOD only keys: A S D F G H J K
-        Key[] fmodKeys = { Key.A, Key.S, Key.D, Key.F, Key.G, Key.H, Key.J, Key.K };
-
-        // Both keys: Z X C V B N M ,
-        Key[] bothKeys = { Key.Z, Key.X, Key.C, Key.V, Key.B, Key.N, Key.M, Key.Comma };
+        MapKeysToAzimuths(unityKeys, unityKeyToAzimuth);
+        MapKeysToAzimuths(fmodKeys, fmodKeyToAzimuth);
+        MapKeysToAzimuths(bothKeys, bothKeyToAzimuth);
 
         if (flag_lookingAtRedMarkerCheck)
         {
-            for (int i = 0; i < azimuths.Length; i++)
+            foreach (var kv in unityKeyToAzimuth)
             {
-                if (Keyboard.current[unityKeys[i]].wasPressedThisFrame && IsLookingAtRedMarker())
-                {
-                    PlayUnitySound(azimuths[i]);
-                }
-                else if (Keyboard.current[fmodKeys[i]].wasPressedThisFrame && IsLookingAtRedMarker())
-                {
-                    PlayFMODSound(azimuths[i]);
-                }
-                else if (Keyboard.current[bothKeys[i]].wasPressedThisFrame && IsLookingAtRedMarker())
-                {
-                    PlayBothSounds(azimuths[i]);
-                }
+                if (Keyboard.current[kv.Key].wasPressedThisFrame && IsLookingAtRedMarker())
+                    PlayUnitySound(kv.Value);
+            }
+            foreach (var kv in fmodKeyToAzimuth)
+            {
+                if (Keyboard.current[kv.Key].wasPressedThisFrame && IsLookingAtRedMarker())
+                    PlayFMODSound(kv.Value);
+            }
+            foreach (var kv in bothKeyToAzimuth)
+            {
+                if (Keyboard.current[kv.Key].wasPressedThisFrame && IsLookingAtRedMarker())
+                    PlayBothSounds(kv.Value);
             }
         }
         else
         {
-            for (int i = 0; i < azimuths.Length; i++)
+            foreach (var kv in unityKeyToAzimuth)
             {
-                if (Keyboard.current[unityKeys[i]].wasPressedThisFrame)
-                {
-                    PlayUnitySound(azimuths[i]);
-                }
-                else if (Keyboard.current[fmodKeys[i]].wasPressedThisFrame)
-                {
-                    PlayFMODSound(azimuths[i]);
-                }
-                else if (Keyboard.current[bothKeys[i]].wasPressedThisFrame)
-                {
-                    PlayBothSounds(azimuths[i]);
-                }
+                if (Keyboard.current[kv.Key].wasPressedThisFrame)
+                    PlayUnitySound(kv.Value);
+            }
+            foreach (var kv in fmodKeyToAzimuth)
+            {
+                if (Keyboard.current[kv.Key].wasPressedThisFrame)
+                    PlayFMODSound(kv.Value);
+            }
+            foreach (var kv in bothKeyToAzimuth)
+            {
+                if (Keyboard.current[kv.Key].wasPressedThisFrame)
+                    PlayBothSounds(kv.Value);
             }
         }
 
@@ -287,8 +291,9 @@ public class SpatialSoundTrial : MonoBehaviour
             return;
         }
 
-        float[] azimuthOptions = new float[] { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
-        float chosenAzimuth = azimuthOptions[UnityEngine.Random.Range(0, azimuthOptions.Length)];
+       // float[] azimuthOptions = new float[] { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
+        //float[] azimuthOptions = new float[] { 0f, 45f, 90f, 270f, 315f };
+        float chosenAzimuth = azimuths[UnityEngine.Random.Range(0, azimuths.Length)];
         float elevation = 0f;
 
         trialCount++;
@@ -300,12 +305,17 @@ public class SpatialSoundTrial : MonoBehaviour
         StartTrial(chosenAzimuth, elevation);
     }
 
-
     void CreateFixedMarkers()
     {
-        fixedMarkers = new GameObject[8];
-        float[] azimuths = { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
-        Color[] colors = { Color.red, Color.yellow, Color.green, Color.cyan, Color.blue, Color.magenta, Color.white, Color.gray };
+        fixedMarkers = new GameObject[azimuths.Length];
+
+        // Dynamically generate enough colors (first one is always red)
+        Color[] colors = new Color[azimuths.Length];
+        colors[0] = Color.red;
+        for (int i = 1; i < colors.Length; i++)
+        {
+            colors[i] = UnityEngine.Random.ColorHSV(0f, 1f, 0.6f, 1f, 0.8f, 1f);
+        }
 
         Debug.Log($"Creating fixed markers at head height: {playerHead.position.y}");
 
@@ -319,6 +329,8 @@ public class SpatialSoundTrial : MonoBehaviour
             sphere.transform.position = pos;
             sphere.transform.localScale = Vector3.one * 0.2f;
 
+            Renderer renderer = sphere.GetComponent<Renderer>();
+
             if (i == 0)
             {
                 sphere.name = "RedMarker";
@@ -327,25 +339,22 @@ public class SpatialSoundTrial : MonoBehaviour
                 if (sphereMaterial != null)
                 {
                     redMarkerMaterialInstance = new Material(sphereMaterial);
-                    redMarkerMaterialInstance.color = Color.red; // Albedo
+                    redMarkerMaterialInstance.color = colors[i];
                     redMarkerMaterialInstance.EnableKeyword("_EMISSION");
-                    redMarkerMaterialInstance.SetColor("_EmissionColor", new Color(5f, 0f, 0f)); // Brighter glow
-
-                    // ✅ Apply it here!
-                    sphere.GetComponent<Renderer>().material = redMarkerMaterialInstance;
+                    redMarkerMaterialInstance.SetColor("_EmissionColor", new Color(5f, 0f, 0f)); // glow red
+                    renderer.material = redMarkerMaterialInstance;
                 }
             }
-
-            if (i != 0 && sphereMaterial != null) // ⬅ don't overwrite red marker material
+            else if (sphereMaterial != null)
             {
-                Renderer renderer = sphere.GetComponent<Renderer>();
                 renderer.material = new Material(sphereMaterial);
-                renderer.material.color = colors[i % colors.Length];
+                renderer.material.color = colors[i];
             }
 
             fixedMarkers[i] = sphere;
         }
     }
+
 
     void PlayUnitySound(float azimuth)
     {
@@ -403,6 +412,22 @@ public class SpatialSoundTrial : MonoBehaviour
         }
 
         return false;
+    }
+
+    void MapKeysToAzimuths(Key[] keys, Dictionary<Key, float> keyToAzimuth)
+    {
+        int n = keys.Length;
+        float total = azimuths.Length;
+
+        for (int i = 0; i < n; i++)
+        {
+            // Find azimuth closest to this division
+            float targetIndex = (i / (float)(n - 1)) * (total - 1);
+            int closestAzimuthIndex = Mathf.RoundToInt(targetIndex);
+            float closestAzimuth = azimuths[closestAzimuthIndex];
+
+            keyToAzimuth[keys[i]] = closestAzimuth;
+        }
     }
 
 }
